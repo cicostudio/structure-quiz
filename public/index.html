@@ -194,7 +194,7 @@ details.trace code { font-size: 13px; }
   <header class="topbar">
     <div class="brandrow">
       <div class="brand">凝聚<span>・</span>結構系列</div>
-      <div class="proto">原型・教練試填</div>
+      <div class="proto" id="trialBadge" hidden>教練試填</div>
     </div>
     <div class="progress" aria-hidden="true"><i id="bar"></i></div>
   </header>
@@ -988,6 +988,7 @@ const T = {
     try { this.anonId = localStorage.getItem('sq_anon'); if (!this.anonId) { this.anonId = crypto.randomUUID(); localStorage.setItem('sq_anon', this.anonId); } }
     catch { this.anonId = null; }
     try { const r = await fetch('/api/config'); if (r.ok) CFG = { ...CFG, ...(await r.json()) }; } catch {}
+    const tb = document.getElementById('trialBadge'); if (tb) tb.hidden = !CFG.trial;
     await initLiff();
     this.source = readSource();
     this.envInfo = readEnv();
