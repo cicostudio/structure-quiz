@@ -43,12 +43,14 @@ npx wrangler login
 npm run deploy
 ```
 
-3. **LINE Developers Console** → 與官方帳號相同用途的 LINE Login channel → LIFF → Add
+## 部署後：LIFF 設定
+
+1. **LINE Developers Console** → 與官方帳號相同用途的 LINE Login channel → LIFF → Add
    - Size：Full
    - Endpoint URL：上一步的網址
    - Scopes：`openid`、`profile`（已通過 email 權限申請的話再勾 `email`）
    - 建立後把 LIFF ID 填進 `wrangler.toml` 的 `LIFF_ID`，channel ID 填進 `LINE_LOGIN_CHANNEL_ID`
-4. 在 `wrangler.toml` 填 `OA_BASIC_ID`（例：`@cohesion`）與 `PRIVACY_URL`，再 `npm run deploy` 一次。
+2. 在 `wrangler.toml` 填 `OA_BASIC_ID`（例：`@cohesion`）與 `PRIVACY_URL`，再 `npm run deploy` 一次。
 
 ## 後台登入
 
