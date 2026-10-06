@@ -11,7 +11,7 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "structure-quiz"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "5da17b22-dc9a-48ba-816f-157558faf57f"
 migrations_dir = "migrations"
 
 [vars]

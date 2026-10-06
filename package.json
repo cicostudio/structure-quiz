@@ -6,7 +6,8 @@
     "dev": "wrangler dev",
     "db:migrate:local": "wrangler d1 migrations apply structure-quiz --local",
     "db:migrate:remote": "wrangler d1 migrations apply structure-quiz --remote",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler d1 migrations apply structure-quiz --remote && wrangler deploy",
+    "deploy:worker-only": "wrangler deploy"
   },
   "dependencies": {
     "hono": "^4.13.13",

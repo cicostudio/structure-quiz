@@ -22,17 +22,24 @@ Cloudflare Worker + D1，免費方案即可運作。
 LINE 身分一律由後端向 LINE 驗證 ID Token 後取得，前端傳來的 userId 不採信。
 同一個人 7 天內回來，會詢問是否從上次的題目接續；被接續的舊紀錄不算跳出。
 
-## 部署（第一次）
+## 部署：Cloudflare Workers Builds（推薦，推上 GitHub 就自動上線）
+
+D1 資料庫已建立（`structure-quiz`，ID 已填在 `wrangler.toml`）。
+
+1. Cloudflare 主控台 → Workers & Pages → Create → Import a repository → 選 `cicostudio/structure-quiz`
+2. Build 設定：
+   - Build command：留空
+   - Deploy command：`npm run deploy`（會先套用資料表，再部署 Worker）
+3. 之後每次 push 到 `main` 都會自動部署。
+4. 若部署記錄出現 D1 權限錯誤：到 Workers Builds 的 API token 設定，替它加上 **D1 Edit** 權限後重新部署。
+
+## 部署：自己的電腦（手動）
 
 ```bash
 npm install
 npx wrangler login
 
-# 1. 建立資料庫，把輸出的 database_id 貼進 wrangler.toml
-npx wrangler d1 create structure-quiz
-npm run db:migrate:remote
-
-# 2. 先部署一次，取得網址（例：https://structure-quiz.<你的子網域>.workers.dev）
+# 資料庫已建立；這一步會套用資料表並部署，取得網址（例：https://structure-quiz.<你的子網域>.workers.dev）
 npm run deploy
 ```
 
