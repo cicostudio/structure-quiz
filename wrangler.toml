@@ -1,0 +1,28 @@
+name = "structure-quiz"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# 測驗頁（index.html）與後台（admin.html）由靜態資產提供；/api/* 交給 Worker
+[assets]
+directory = "./public"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "structure-quiz"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+[vars]
+# LINE Developers Console → LINE Login channel
+LIFF_ID = ""                 # 例：2001234567-AbCdEfGh
+LINE_LOGIN_CHANNEL_ID = ""   # 例：2001234567（用來驗證 ID Token）
+OA_BASIC_ID = ""             # 官方帳號 Basic ID（含 @，例：@cohesion）；設定後「用 LINE 接收」會開啟預填訊息
+PRIVACY_URL = ""             # 隱私權政策網址
+# 教練試填期間設 "1"：結果頁會出現回饋表，紀錄標記為試填
+TRIAL_MODE = "1"
+# Cloudflare Access（保護 /admin 與 /api/admin）；兩個都填才會啟用 JWT 驗證
+ACCESS_TEAM_DOMAIN = ""      # 例：cohesion.cloudflareaccess.com
+ACCESS_AUD = ""              # Access application 的 AUD tag
+# 本機或暫時沒有 Access 時，用 `wrangler secret put ADMIN_TOKEN` 設一組後台密碼

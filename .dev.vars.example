@@ -1,0 +1,2 @@
+# 本機開發用，複製成 .dev.vars（不要提交到 GitHub）
+ADMIN_TOKEN="換成一組長密碼"

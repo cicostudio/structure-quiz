@@ -1,0 +1,1129 @@
+<title>結構認證路徑測驗</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow phone-first column; one question per screen, results stack as cards in the course's own color */
+:root {
+  --bg: #F5F4F1;
+  --surface: #FFFFFF;
+  --ink: #2C2B28;
+  --muted: #77736A;
+  --line: #E2DED5;
+  --bronze: #9C7A4B;
+  --bronze-soft: #EFE6D8;
+  --warn: #A03A22;
+  --warn-soft: #F6E3DC;
+  --ok: #2F6B62;
+  --serif: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1B1A18; --surface: #252320; --ink: #ECE9E2; --muted: #A8A39A; --line: #3A3733;
+    --bronze: #C9A473; --bronze-soft: #3A3127; --warn: #E58C72; --warn-soft: #3B2620; --ok: #8CC0B4;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1B1A18; --surface: #252320; --ink: #ECE9E2; --muted: #A8A39A; --line: #3A3733;
+  --bronze: #C9A473; --bronze-soft: #3A3127; --warn: #E58C72; --warn-soft: #3B2620; --ok: #8CC0B4;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.7; padding-inline: 16px; padding-block: 0 48px; }
+.wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 700; text-wrap: balance; margin: 0; letter-spacing: .02em; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 14px 10px; display: flex; flex-direction: column; gap: 10px; }
+.brandrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--serif); font-weight: 700; font-size: 15px; letter-spacing: .12em; }
+.brand span { color: var(--bronze); }
+.proto { font-size: 12px; letter-spacing: .08em; color: var(--bronze); border: 1px solid var(--bronze); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--bronze); transition: width .3s ease; }
+
+.rule { width: 48px; height: 4px; background: var(--bronze); }
+.eyebrow { font-size: 13px; letter-spacing: .1em; color: var(--muted); }
+.lede { color: var(--muted); }
+
+.intro { display: flex; flex-direction: column; gap: 16px; padding-block: 16px 4px; }
+.intro h1 { font-size: 30px; line-height: 1.35; }
+.note { background: var(--bronze-soft); border-radius: 12px; padding: 14px 16px; font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+.note b { font-weight: 700; }
+
+.q { display: flex; flex-direction: column; gap: 18px; padding-block: 8px; }
+.q h2 { font-size: 24px; line-height: 1.45; }
+.opts { display: flex; flex-direction: column; gap: 12px; }
+.opt { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 15px 18px 15px 22px; font-size: 17px; line-height: 1.45; transition: border-color .15s, background .15s; }
+.opt:hover { border-color: var(--bronze); }
+.opt.on { border-color: var(--bronze); background: var(--bronze-soft); }
+.opt .arrow { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--bronze); display: grid; place-items: center; color: var(--bronze); }
+.opt .arrow svg { width: 14px; height: 14px; }
+.opt.on .arrow { background: var(--bronze); color: var(--surface); }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.checkgroup { display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.checkgroup b { font-family: var(--serif); font-size: 15px; }
+.checkgroup label { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.checkgroup input { width: 18px; height: 18px; accent-color: var(--bronze); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 15px; }
+.chip.on { border-color: var(--bronze); background: var(--bronze-soft); }
+.subq { display: flex; flex-direction: column; gap: 10px; }
+.subq b { font-size: 15px; }
+.nav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.btn { border-radius: 999px; padding: 13px 24px; font-weight: 500; border: 1px solid var(--bronze); background: var(--bronze); color: #FFFFFF; font-size: 16px; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.wide { width: 100%; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.link { background: none; border: none; color: var(--muted); padding: 6px 0; font-size: 15px; text-decoration: underline; text-underline-offset: 3px; }
+.err { color: var(--warn); font-size: 13px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.card h3 { font-size: 19px; }
+.opening { font-family: var(--serif); font-size: 20px; line-height: 1.6; padding-block: 8px 0; }
+.hero { border-radius: 18px; padding: 22px 20px; display: flex; flex-direction: column; gap: 14px; }
+.hero .vision { font-size: 14px; opacity: .85; }
+.hero .vision q { font-family: var(--serif); font-size: 17px; display: block; opacity: 1; quotes: "「" "」"; margin-top: 2px; }
+.hero .cname { font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1.3; }
+.hero .plan { font-size: 17px; font-weight: 500; }
+.hero .tag { font-family: var(--serif); font-size: 15px; letter-spacing: .2em; }
+.lvls { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid currentColor; border-top-color: rgba(255,255,255,.28); padding-top: 12px; font-size: 14px; }
+.lvls div { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.lvls .stale { opacity: .75; font-size: 12px; }
+.price { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.price div { background: rgba(255,255,255,.12); border-radius: 12px; padding: 10px 12px; font-variant-numeric: tabular-nums; }
+.price small { display: block; font-size: 12px; opacity: .8; }
+.price b { font-size: 20px; }
+.heroBtn { border-radius: 999px; border: none; padding: 14px 20px; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.why p + p { margin-top: 8px; }
+.path { display: flex; flex-direction: column; gap: 0; }
+.step { display: grid; grid-template-columns: 22px 1fr; gap: 12px; }
+.step .dot { display: flex; flex-direction: column; align-items: center; }
+.step .dot i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bronze); background: var(--surface); margin-top: 7px; }
+.step:first-child .dot i { background: var(--bronze); }
+.step .dot s { flex: 1; width: 2px; background: var(--line); text-decoration: none; }
+.step:last-child .dot s { display: none; }
+.step .body { padding-bottom: 16px; min-width: 0; }
+.step .lab { font-size: 12px; letter-spacing: .1em; color: var(--bronze); }
+.step .what { font-weight: 700; }
+.step .rs { font-size: 14px; color: var(--muted); }
+.entry { border: 1px solid var(--bronze); background: var(--bronze-soft); }
+.entry ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.notrec li { color: var(--muted); }
+.notrec ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.mock { font-size: 12px; color: var(--muted); }
+.bind .btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+form { display: flex; flex-direction: column; gap: 10px; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+input[type=text], input[type=tel], input[type=email], textarea, select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; }
+textarea { min-height: 88px; resize: vertical; }
+.consent { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--muted); }
+.consent input { margin-top: 4px; accent-color: var(--bronze); }
+.radios { display: flex; flex-wrap: wrap; gap: 8px; }
+.radios label { display: flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: 15px; }
+.radios input { accent-color: var(--bronze); }
+.fb { border: 2px dashed var(--bronze); }
+.okmsg { color: var(--ok); font-size: 14px; }
+details.trace { font-size: 14px; }
+details.trace summary { cursor: pointer; color: var(--muted); }
+details.trace ol { margin: 8px 0 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+details.trace code { font-size: 13px; }
+.copybox { white-space: pre-wrap; font-size: 13px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; max-height: 220px; overflow: auto; }
+.owner table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.owner th, .owner td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.owner .tw { overflow-x: auto; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.stats span { background: var(--bg); border-radius: 999px; padding: 4px 12px; font-variant-numeric: tabular-nums; }
+@media (max-width: 420px) { .checks { grid-template-columns: 1fr; } .hero .cname { font-size: 24px; } .q h2 { font-size: 21px; } }
+@media (prefers-reduced-motion: reduce) { .progress i { transition: none; } }
+.follow { display: flex; flex-direction: column; gap: 8px; margin-left: 6px; padding-left: 14px; border-left: 2px solid var(--bronze-soft); font-size: 14px; color: var(--muted); }
+.follow input { max-width: 260px; }
+.gate { display: flex; flex-direction: column; gap: 16px; padding-block: 8px; }
+.gate h2 { font-size: 24px; line-height: 1.45; }
+.teaser { gap: 10px; }
+.leadcard { border: 2px solid var(--bronze); }
+.unlock { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.unlock li { display: flex; gap: 10px; align-items: baseline; }
+.unlock .ck { flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--bronze); color: #FFFFFF; font-size: 12px; display: grid; place-items: center; transform: translateY(3px); }
+.btn.cta { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; font-size: 17px; padding-block: 15px; }
+.btn.cta .arrow { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; }
+.btn.cta .arrow svg { width: 12px; height: 12px; }
+.or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.price .eb { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: rgba(255,255,255,.2); }
+.price .eb b.locked { letter-spacing: .06em; opacity: .9; }
+.ebBtn { border: none; border-radius: 999px; background: #F5F4F1; font-weight: 700; font-size: 14px; padding: 8px 14px; }
+.ebnote { font-size: 13px; opacity: .85; }
+.donecard { border: 2px solid var(--ok); }
+.donecard h3 { color: var(--ok); }
+.sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to bottom, transparent, var(--bg) 35%); transition: transform .25s ease, opacity .25s ease; }
+.sticky .btn { max-width: 560px; margin: 0 auto; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+.sticky.off { transform: translateY(110%); opacity: 0; pointer-events: none; }
+.stickpad { height: 72px; }
+@media (prefers-reduced-motion: reduce) { .sticky { transition: none; } }
+.lvchips { display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid rgba(255,255,255,.28); padding-top: 12px; }
+.lvchips span { font-size: 13px; border: 1px solid; border-radius: 999px; padding: 3px 12px; }
+.journey { gap: 18px; }
+.jstep { display: grid; grid-template-columns: 40px 1fr; gap: 14px; }
+.jnum { width: 40px; height: 40px; border-radius: 50%; color: #F5F4F1; font-family: var(--serif); font-weight: 700; font-size: 15px; display: grid; place-items: center; }
+.jbody { min-width: 0; display: flex; flex-direction: column; gap: 8px; padding-top: 2px; }
+.jlab { font-size: 12px; letter-spacing: .2em; font-weight: 700; }
+.jbody h4 { margin: 0; font-family: var(--serif); font-size: 17px; }
+.jbody ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+.jlv { display: flex; flex-direction: column; gap: 4px; }
+.jlv + .jlv { margin-top: 6px; }
+.jlvname { font-size: 13px; font-weight: 700; letter-spacing: .04em; }
+.jbody blockquote { margin: 0; padding: 2px 0 2px 12px; border-left: 3px solid; font-family: var(--serif); font-size: 17px; line-height: 1.6; }
+.jdepth { font-size: 14px; color: var(--muted); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .jlab, :root:not([data-theme="light"]) .jlvname { filter: brightness(1.8); } }
+:root[data-theme="dark"] .jlab, :root[data-theme="dark"] .jlvname { filter: brightness(1.8); }
+.privacy { font-size: 12px; color: var(--muted); }
+.privacy a { color: inherit; }
+.resume { border: 1px solid var(--bronze); }
+.resume .nav { margin-top: 4px; }
+</style>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brandrow">
+      <div class="brand">凝聚<span>・</span>結構系列</div>
+      <div class="proto">原型・教練試填</div>
+    </div>
+    <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+  </header>
+  <main id="app" aria-live="polite"></main>
+</div>
+
+<script>
+const ARROW = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2l5 5-5 5"/></svg>';
+
+const COURSES = {
+  yuanli: { name: '結構原力', levels: 3, main: '#2F6B62', sub: '#B5D6CD', tagline: '喚醒天生力量', hours: [6, 12, 15],
+    dates: [['8/1', '2026-08-01'], ['8/15-16', '2026-08-15'], ['8/21-23', '2026-08-21']],
+    single: [[4280, 7980], [8880, 16980], [32800, 63980]], pack12: [12888, 24888], pack123: [44888, 88888] },
+  xunlian: { name: '結構訓練', levels: 3, main: '#A03A22', sub: '#F0D2C6', tagline: '改良傳統重訓', hours: [6, 12, 27],
+    dates: [['8/29', '2026-08-29'], ['9/5-6', '2026-09-05'], ['9/18-20・10/24-25', '2026-09-18']],
+    single: [[5280, 9980], [13800, 25980], [42800, 79980]], pack12: [18888, 35888], pack123: [56888, 106888] },
+  shunshi: { name: '順勢訓練', levels: 2, main: '#3D566E', sub: '#BFCEDE', tagline: '不對抗更順力', hours: [6, 12],
+    dates: [['10/3', '2026-10-03'], ['10/17-18', '2026-10-17']],
+    single: [[5280, 9980], [13800, 25980]], pack12: [18888, 35888] },
+  shoufa: { name: '結構手法', levels: 3, main: '#4A5240', sub: '#C9CDBF', tagline: '用手讀懂結構', hours: [12, 24, 27],
+    dates: [['11/7-8', '2026-11-07'], ['11/19-22', '2026-11-19'], ['12/4-6・1/9-10', '2026-12-04']],
+    single: [[17800, 33800], [45800, 89800], [64800, 125980]], pack12: [59888, 118888], pack123: [125888, 238888] },
+  anmo: { name: '結構按摩', levels: 2, main: '#5E4634', sub: '#D8C7B8', tagline: '終結盲目按壓', hours: [6, 18],
+    dates: [['12/12', '2026-12-12'], ['12/18-20', '2026-12-18']],
+    single: [[5280, 9980], [19800, 37980]], pack12: [24888, 46888] }
+};
+const LV_NAME = ['基礎能力', '進階整合', '高階應用'];
+const DEPTH = ['察覺', '理解', '判斷'];
+
+const PAIN = {
+  self: { yuanli: '先搞懂自己的身體', shunshi: '讓動作變得更順暢', xunlian: '提升訓練強度與表現' },
+  other: { yuanli: '更準確地感受學員的身體', shunshi: '讓學員的動作更順暢', xunlian: '讓學員更有效率地加強度', anmo: '幫身邊的人解開緊繃', shoufa: '改善客戶的長期身體問題' }
+};
+
+const REASON = {
+  'yuanli-self': '你想先搞懂自己的身體。結構原力從認識結構空間開始，帶你感覺到身體正在發生什麼——痠痛與姿勢的問題，會從「說不出哪裡怪」變成「知道哪裡該調整」。',
+  'yuanli-other': '你提到感受不到學員描述的感覺。老師自己的覺察，就是判斷學員的那把尺——結構原力先讓你清楚感覺自己，再把這份感知帶進教學。',
+  'shunshi-self': '怎麼練都卡卡的，往往不是不夠努力，而是還沒找到動作的「順勢空間」。順勢訓練帶你覺察卡點、找到並拓展順勢空間，讓動作順暢不卡頓。',
+  'shunshi-other': '學員卡卡不協調，問題常在於還沒找到順勢空間。順勢訓練讓你看見卡點在哪裡，並有具體策略帶學員順暢地做出動作。',
+  'xunlian-self': '結構訓練不推翻傳統重訓，而是加入結構思維——訓練的核心不是肌肉收縮，而是創造結構空間，讓你練得更有效率，也更安全。',
+  'xunlian-other': '想讓學員安全地加強度，關鍵在於不破壞結構。結構訓練讓你用結構的邏輯安排動作與強度，提升學員的訓練品質，也降低受傷風險。',
+  'anmo-other': '結構按摩透過找尋組織的凹陷處，針對局部的緊繃與張力處理，讓你在身邊的人突然不適時，按得準，也按得省力。',
+  'shoufa-other': '結構手法從皮膚的走向評估不適的真正源頭，還原影響整體空間的路徑——讓你從局部放鬆，升級為改善客戶長期問題的整體調整。'
+};
+const Q3_ADDON = {
+  release: '你習慣幫學員放鬆，{c}能讓你多一套工具，從另一個角度處理問題。',
+  train: '你已經習慣用動作幫助學員，{c}會讓你的建議更有根據。',
+  none: '{c}給你一套判斷的邏輯，下次學員說哪裡不舒服，你會知道從哪裡看起。',
+  delegate: '過去需要轉介的狀況，學完{c}後，有機會由你親手找出源頭。'
+};
+
+const PARTS = ['第一部分｜你的目標', '第二部分｜你的現況', '第三部分｜關於你', '第四部分｜最後確認'];
+const isOther = a => a.q1 === 'other' || a.q1 === 'both';
+
+const QUESTIONS = [
+  { id: 'q1', part: 0, title: () => '你學習的主要目的是？', options: () => [
+    ['self', '改善我自己的身體'], ['other', '協助我的學員、客戶或家人'], ['both', '兩者都有']] },
+  { id: 'q2', part: 0, title: a => isOther(a) ? '你在協助別人時，最想突破的是？' : '你現在最想解決的是？', options: a => isOther(a) ? [
+    ['yuanli', '學員描述的身體感覺，我自己感受不到，很難判斷'],
+    ['shunshi', '學員動作卡卡、不協調，不知道怎麼引導'],
+    ['xunlian', '想讓學員練得更有效率、更安全地加強度'],
+    ['anmo', '想幫身邊的人解開突然的緊繃與不適'],
+    ['shoufa', '想用雙手改善客戶的長期身體問題']] : [
+    ['yuanli', '生活中的痠痛與姿勢，想先搞懂自己的身體'],
+    ['shunshi', '不管怎麼練都覺得卡卡、怪怪、不協調'],
+    ['xunlian', '想提升訓練強度與運動表現']] },
+  { id: 'q3', part: 1, title: a => isOther(a) ? '學員向你訴說身體不舒服時，你通常會怎麼建議他？' : '遇到身體不舒服的時候，哪一種方式通常讓你比較快好轉？', options: a => isOther(a) ? [
+    ['release', '建議他放鬆、按摩或伸展'], ['train', '建議他動一動、做些訓練'],
+    ['none', '不太確定，先請他休息觀察'], ['delegate', '建議他去看醫生、找按摩或復健']] : [
+    ['release', '自己放鬆、按摩、伸展，就舒緩很多'], ['train', '起來動一動、活動開了，反而比較順'],
+    ['none', '不知道該怎麼辦，睡一覺應該就會好'], ['delegate', '馬上預約按摩或復健，多少會好一點']] },
+  { id: 'q4', part: 1, title: a => isOther(a) ? '你最常遇到的學員或客戶狀態是？' : '你最常感受到的身體狀態是？', options: a => isOther(a) ? [
+    ['release', '總是緊繃、僵硬'], ['train', '無力、撐不住，容易勞累或痠痛'],
+    ['coord', '別人做得輕鬆的動作，他們卻很卡頓'], ['limit', '沒辦法做到他們想做的動作']] : [
+    ['release', '總是緊繃、僵硬，身體好像被綁住'], ['train', '會無力、撐不住，容易勞累或痠痛'],
+    ['coord', '看別人做得很輕鬆的動作，自己卻很卡頓'], ['limit', '沒辦法隨心所欲做到自己想做的動作']] },
+  { id: 'q5', part: 1, title: () => '完成這段學習後，你希望成為什麼樣的自己？', options: a => isOther(a) ? [
+    ['1', '先確認這套方法能不能用在我的教學或工作上'],
+    ['2', '能在教學或服務中加入結構觀點，讓學員更快感受到差異'],
+    ['3', '能獨立判斷、設計方案，成為學員信任的結構專家']] : [
+    ['1', '能清楚感覺到身體在發生什麼，知道哪裡不對勁'],
+    ['2', '不只感覺得到，還能找到原因、自己調整回來'],
+    ['3', '能把這套理解用在任何動作上，成為身邊的人的參考']] },
+  { id: 'q6', part: 2, title: () => '你的工作和身體有關嗎？', options: () => [
+    ['coach', '健身教練、運動指導員'], ['bodywork', '物理治療師、按摩師等以雙手工作的身體工作者'],
+    ['athlete', '運動員或高度投入的運動愛好者'], ['general', '一般上班族、學生或其他']] },
+  { id: 'q7', part: 2, title: () => '你目前或曾經是凝聚的一對一學員嗎？', options: () => [['yes', '是'], ['no', '否']] },
+  { id: 'q8', part: 2, type: 'courses', title: () => '你上過凝聚的認證課嗎？' },
+  { id: 'q9', part: 3, title: () => '你最近身上有急性受傷，或剛發生、正在影響生活的疼痛嗎？', options: () => [
+    ['yes', '有'], ['no', '沒有，或只是長期的小痠痛']] },
+  { id: 'q10', part: 3, type: 'pref', title: () => '如果開課，你偏好的上課地點與時段是？' }
+];
+const TOTAL = QUESTIONS.length;
+
+let answers = {};
+let idx = -1;
+let lastResult = null;
+
+const app = document.getElementById('app');
+const bar = document.getElementById('bar');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = n => 'NT$' + n.toLocaleString('en-US');
+const top0 = () => window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+function setBar(n) { bar.style.width = (n / TOTAL * 100) + '%'; }
+
+function renderIntro() {
+  idx = -1; setBar(0);
+  const name = T.profile?.name;
+  app.innerHTML = `
+    <section class="intro">
+      <div class="rule"></div>
+      ${name ? `<div class="eyebrow">Hi，${esc(name)}</div>` : ''}
+      <h1>2 分鐘，找到最適合你的結構認證路徑</h1>
+      <p class="lede">回答 10 個問題，我們會依你的目標與現況，推薦最適合你的認證課與學習路徑。</p>
+      <div id="resumeSlot"></div>
+      ${CFG.trial ? `<div class="note">
+        <b>給試填的教練</b>
+        <span>你可以用自己的身份作答，也可以想像一位你帶過的學員來回答。看到結果後，請在最下方告訴我們推薦準不準。</span>
+      </div>` : ''}
+      <button class="btn wide" id="start">開始測驗</button>
+      <p class="privacy">我們會記錄你的 LINE 名稱、頭像與作答進度，用於提供測驗結果與課程資訊。<a href="${esc(CFG.privacyUrl || '#')}" target="_blank" rel="noopener">隱私權政策</a></p>
+    </section>`;
+  document.getElementById('start').onclick = async () => {
+    if (T.s.stage >= 1) { T.reset(); await T.startSession(); }   // 再測一次：開一筆新紀錄
+    answers = {}; lead = { done: false, skipped: false, name: '' };
+    T.ev('start'); T.set({ stage: 1 }, true);
+    go(0);
+  };
+  renderResume();
+}
+
+function renderResume() {
+  const slot = document.getElementById('resumeSlot');
+  const r = T.resume;
+  if (!slot || !r || T.s.stage >= 1) return;
+  slot.innerHTML = `<div class="note resume"><b>上次答到第 ${r.lastQ} 題</b><span>要從第 ${Math.min(r.lastQ + 1, TOTAL)} 題接續嗎？</span>
+    <div class="nav"><button class="btn" id="resumeGo">接續作答</button><button class="link" id="resumeNo">重新開始</button></div></div>`;
+  document.getElementById('resumeGo').onclick = () => {
+    answers = r.answers || {}; lead = { done: false, skipped: false, name: '' };
+    T.s.qTimes = { ...(r.qTimes || {}) };
+    T.ev('resume', null, { from: r.id, lastQ: r.lastQ });
+    T.set({ stage: 1, lastQ: r.lastQ, resumedFrom: r.id }, true);
+    T.resume = null;
+    go(Math.min(r.lastQ, TOTAL - 1));
+  };
+  document.getElementById('resumeNo').onclick = () => { T.resume = null; slot.innerHTML = ''; T.ev('resume_decline'); };
+}
+
+function go(i) { idx = i; renderQ(); T.screen('q' + (i + 1)); top0(); }
+
+function next() {
+  const v = answers[QUESTIONS[idx].id];
+  T.answered(idx, typeof v === 'object' ? (QUESTIONS[idx].type === 'pref' ? prefText(v) : v) : v);
+  if (idx < TOTAL - 1) go(idx + 1); else finish();
+}
+
+function chooseSingle(q, v) {
+  const prev = answers[q.id];
+  if (prev !== undefined && prev !== v) { T.s.changes++; T.ev('change', q.id, { from: prev, to: v }); }
+  answers[q.id] = v;
+  if (q.id === 'q1' && prev && (isOther({ q1: prev }) !== isOther(answers))) {
+    ['q2', 'q3', 'q4', 'q5'].forEach(k => delete answers[k]);
+  }
+  if (q.id === 'q9' && v === 'yes') { T.answered(idx, v); setBar(TOTAL); showResult(); return; }
+  next();
+}
+
+function head(q) {
+  return `<div class="eyebrow">${esc(PARTS[q.part])}　·　${idx + 1} / ${TOTAL}</div><h2>${esc(q.title(answers))}</h2>`;
+}
+
+function backLink() {
+  return `<div class="nav"><button class="link" id="back">上一題</button></div>`;
+}
+function bindBack() {
+  const b = document.getElementById('back');
+  if (b) b.onclick = () => { T.s.backs++; T.ev('back', 'q' + (idx + 1)); if (idx > 0) go(idx - 1); else { T.screen('intro'); renderIntro(); } };
+}
+
+function renderQ() {
+  const q = QUESTIONS[idx];
+  setBar(idx);
+  if (q.type === 'courses') return renderCourses(q);
+  if (q.type === 'pref') return renderPref(q);
+  const opts = q.options(answers);
+  app.innerHTML = `<section class="q">${head(q)}
+    <div class="opts">${opts.map(([v, t]) => `<button class="opt${answers[q.id] === v ? ' on' : ''}" data-v="${v}"><span>${esc(t)}</span><span class="arrow" aria-hidden="true">${ARROW}</span></button>`).join('')}</div>
+    ${backLink()}</section>`;
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    app.querySelectorAll('.opt').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    setTimeout(() => chooseSingle(q, b.dataset.v), 160);
+  });
+  bindBack();
+}
+
+function renderCourses(q) {
+  const st = answers.q8 || { took: null, done: [] };
+  const groups = Object.entries(COURSES).map(([k, c]) => `
+    <div class="checkgroup"><b>${c.name}</b>
+      ${Array.from({ length: c.levels }, (_, i) => `<label><input type="checkbox" id="cb-${k}-${i + 1}" value="${k}${i + 1}" ${st.done.includes(k + (i + 1)) ? 'checked' : ''}> LEVEL ${i + 1}</label>`).join('')}
+    </div>`).join('');
+  app.innerHTML = `<section class="q">${head(q)}
+    <div class="opts">
+      <button class="opt${st.took === 'yes' ? ' on' : ''}" data-v="yes"><span>上過</span><span class="arrow" aria-hidden="true">${ARROW}</span></button>
+      <button class="opt${st.took === 'no' ? ' on' : ''}" data-v="no"><span>還沒有</span><span class="arrow" aria-hidden="true">${ARROW}</span></button>
+    </div>
+    <div class="subq" id="listwrap" ${st.took === 'yes' ? '' : 'hidden'}>
+      <b>你已經完成哪些課程？（可複選）</b>
+      <div class="checks">${groups}</div>
+      <p class="err" id="cerr" hidden>請至少勾選一堂完成的課程</p>
+      <button class="btn wide" id="cnext">下一題</button>
+    </div>
+    ${backLink()}</section>`;
+  const wrap = document.getElementById('listwrap');
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    app.querySelectorAll('.opt').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    if (b.dataset.v === 'no') { answers.q8 = { took: 'no', done: [] }; setTimeout(next, 160); }
+    else { answers.q8 = { took: 'yes', done: answers.q8?.done || [] }; wrap.hidden = false; }
+  });
+  app.querySelectorAll('.checks input').forEach(cb => cb.onchange = () => {
+    document.getElementById('cerr').hidden = true;
+    answers.q8.done = [...app.querySelectorAll('.checks input:checked')].map(x => x.value);
+  });
+  document.getElementById('cnext').onclick = () => {
+    if (!answers.q8.done.length) { document.getElementById('cerr').hidden = false; return; }
+    next();
+  };
+  bindBack();
+}
+
+const PLACE_LABEL = { taipei: '台北旗艦店（中山）', other: '外縣市' };
+const TIME_LABEL = { weekend: '週末整天（五六日）', weekday: '平日' };
+function prefText(p) {
+  if (!p) return '';
+  const parts = [];
+  if (p.place) parts.push(PLACE_LABEL[p.place] + (p.place === 'other' && p.city ? '：' + (p.city === '其他' ? (p.cityOther || '其他') : p.city) : ''));
+  if (p.time) parts.push(TIME_LABEL[p.time] + (p.time === 'weekday' && p.slot ? '：' + p.slot : ''));
+  return parts.join('・');
+}
+
+function renderPref(q) {
+  const p = answers.q10 || (answers.q10 = {});
+  const chip = (g, v, label) => `<button class="chip${p[g] === v ? ' on' : ''}" data-g="${g}" data-v="${v}">${esc(label || v)}</button>`;
+  app.innerHTML = `<section class="q">${head(q)}
+    <p class="lede">選填，不影響推薦結果。認證課預設在台北旗艦店（中山）週末整天開課，你的回答會幫助我們規劃加開梯次。</p>
+    <div class="subq"><b>地點</b>
+      <div class="chips">${chip('place', 'taipei', PLACE_LABEL.taipei)}${chip('place', 'other', PLACE_LABEL.other)}</div>
+      ${p.place === 'other' ? `<div class="follow"><span>哪個城市？</span>
+        <div class="chips">${['台中', '台南', '高雄', '其他'].map(v => chip('city', v)).join('')}</div>
+        ${p.city === '其他' ? `<input type="text" id="cityOther" maxlength="20" placeholder="請輸入縣市" aria-label="其他縣市" value="${esc(p.cityOther || '')}">` : ''}
+      </div>` : ''}
+    </div>
+    <div class="subq"><b>時段</b>
+      <div class="chips">${chip('time', 'weekend', TIME_LABEL.weekend)}${chip('time', 'weekday', TIME_LABEL.weekday)}</div>
+      ${p.time === 'weekday' ? `<div class="follow"><span>平日哪個時段？</span>
+        <div class="chips">${['白天', '晚上', '都可以'].map(v => chip('slot', v)).join('')}</div>
+      </div>` : ''}
+    </div>
+    <div class="nav"><button class="btn" id="see">看我的結果</button><button class="link" id="skip">略過</button></div>
+    ${backLink()}</section>`;
+  app.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+    const g = c.dataset.g, v = c.dataset.v;
+    p[g] = p[g] === v ? null : v;
+    if (g === 'place' && p.place !== 'other') { p.city = null; p.cityOther = ''; }
+    if (g === 'city' && p.city !== '其他') p.cityOther = '';
+    if (g === 'time' && p.time !== 'weekday') p.slot = null;
+    renderPref(q);
+    if (g === 'city' && p.city === '其他') document.getElementById('cityOther')?.focus();
+  });
+  const co = document.getElementById('cityOther');
+  if (co) co.oninput = () => { p.cityOther = co.value.trim(); };
+  document.getElementById('see').onclick = next;
+  document.getElementById('skip').onclick = () => { answers.q10 = {}; T.ev('skip', 'q10'); next(); };
+  bindBack();
+}
+
+/* ---------- 推薦邏輯 ---------- */
+function planFor(key, start, end) {
+  const c = COURSES[key];
+  const lv = []; for (let i = start; i <= end; i++) lv.push(i);
+  let label, price;
+  if (start === 1 && end === 1) { label = '單堂 LEVEL 1'; price = c.single[0]; }
+  else if (start === 1 && end === 2) { label = '必修 LEVEL 1+2'; price = c.pack12; }
+  else if (start === 1 && end === 3) { label = '全修 LEVEL 1+2+3'; price = c.pack123; }
+  else if (start === end) { label = `單階 LEVEL ${start}`; price = c.single[start - 1]; }
+  else { label = `LEVEL ${lv.join('+')}（單階合計）`; price = lv.reduce((s, i) => [s[0] + c.single[i - 1][0], s[1] + c.single[i - 1][1]], [0, 0]); }
+  return { key, start, end, levels: lv, label, price };
+}
+
+function compute(a) {
+  const trace = [];
+  const branch = isOther(a) ? 'other' : 'self';
+  const done = new Set(a.q8?.done || []);
+  const target = a.q2;
+  const c = COURSES[target];
+  const pro = a.q6 && a.q6 !== 'general';
+  const r = { branch, target, trace };
+  trace.push(`Q1 → ${branch === 'other' ? '他人分支' + (a.q1 === 'both' ? '（兩者都有，標記帶人者）' : '') : '自我分支'}`);
+  trace.push(`Q2 → 主推系列：${c.name}`);
+
+  const doneAll = Array.from({ length: c.levels }, (_, i) => done.has(target + (i + 1))).every(Boolean);
+  let start = 1; while (start <= c.levels && done.has(target + start)) start++;
+  if (a.q9 === 'yes') { r.type = 'B'; trace.push('Q9 有急性不適 → 結果頁 B'); }
+  else if (doneAll) { r.type = 'C'; trace.push(`已完成${c.name}全部等級 → 結果頁 C`); return r; }
+  else r.type = 'A';
+
+  const want = Number(a.q5 || 1);
+  const capped = Math.min(want, c.levels);
+  if (want > c.levels) trace.push(`Q5 選判斷層，但${c.name}最高到 LEVEL ${c.levels} → 改推到 LEVEL ${c.levels}`);
+  const end = Math.max(start, capped);
+  if (start > 1) trace.push(`Q8 已完成至 LEVEL ${start - 1} → 起點 LEVEL ${start}`);
+  r.plan = planFor(target, start, end);
+  r.depth = DEPTH[want - 1];
+  r.visionText = (QUESTIONS[4].options(a).find(o => o[0] === a.q5) || [])[1] || '';
+  trace.push(`Q5 ${r.depth}層 → ${r.plan.label}`);
+
+  const path = [];
+  path.push({ lab: '現在開始', what: `${c.name}認證｜${r.plan.label}`, rs: '最符合你現在的目標與投入程度。' });
+  if (end < c.levels) path.push({ lab: '下一步', what: `${c.name}認證 LEVEL ${end + 1}｜${LV_NAME[end]}`, rs: '完成後往下一個層級深化。' });
+  const notRec = [];
+  if (target === 'anmo' && want === 3) {
+    if (!done.has('shoufa1')) path.push({ lab: '下一步', what: '結構手法認證 LEVEL 1', rs: '想走到能獨立判斷的層級，從局部放鬆升級到整體調整。' });
+    notRec.push('結構按摩到「理解」層為止。想走到能獨立判斷的層級，下一步是結構手法。');
+    trace.push('按摩＋判斷層 → 延伸結構手法');
+  }
+  if (target === 'shunshi' && want === 3) {
+    notRec.push('順勢訓練最高到 LEVEL 2。想再往判斷層走，結構原力 LEVEL 3 是延伸方向。');
+    trace.push('順勢＋判斷層 → 延伸原力 LEVEL 3');
+  }
+  if (a.q6 === 'general' && target === 'shoufa') notRec.push('結構手法是為以雙手維生的身體工作者設計；如果主要是照顧家人朋友，結構按摩會更貼近你的需求。');
+
+  const compMap = branch === 'self'
+    ? { release: 'yuanli', train: 'xunlian', coord: 'shunshi', limit: 'shunshi' }
+    : { release: 'anmo', train: 'xunlian', coord: 'shunshi', limit: 'shunshi' };
+  const comp = compMap[a.q4];
+  r.compSame = comp === target;
+  if (comp && comp !== target) {
+    const cc = COURSES[comp];
+    let cs = 1; while (cs <= cc.levels && done.has(comp + cs)) cs++;
+    if (cs <= cc.levels) { r.comp = { key: comp, lv: cs }; trace.push(`Q4 身體狀態對應${cc.name} → 列入「未來可以」`); }
+  } else if (r.compSame) trace.push('Q4 與 Q2 指向同一門課 → 推薦理由加一句肯定');
+
+  const yL3 = (branch === 'other' && want === 3 && pro && !done.has('yuanli3') && target !== 'yuanli') || (target === 'shunshi' && want === 3 && !done.has('yuanli3'));
+  if (yL3) trace.push('帶人者＋判斷層＋專業身份 → 原力 LEVEL 3 列入「未來可以」');
+  const future = [];
+  if (yL3) future.push({ lab: '未來可以', what: '結構原力認證 LEVEL 3｜高階應用', rs: '適合已經能清楚感知自己身體、又需要帶學員的你——在動態中維持良好姿態，也更能引導學員感知。' });
+  if (r.comp) future.push({ lab: '未來可以', what: `${COURSES[r.comp.key].name}認證 LEVEL ${r.comp.lv}`, rs: '對應你描述的身體狀態，和現在這堂課互補。' });
+  while (path.length < 3 && future.length) path.push(future.shift());
+  r.path = path.slice(0, 3);
+  r.notRec = notRec;
+
+  const oneOnOne = a.q7 === 'yes', took = a.q8?.took === 'yes';
+  r.who = oneOnOne && took ? '老學員' : oneOnOne ? '一對一學員，首次進修' : took ? '認證課學員' : '第一次接觸';
+  trace.push(`Q7＋Q8 → 開場身份：${r.who}`);
+  r.firstTime = !oneOnOne && !took;
+  if (r.firstTime) {
+    r.entryVersion = pro ? '專業' : '一般';
+    r.entryOrder = target === 'yuanli' ? ['one'] : a.q3 === 'none' ? ['yuanli', 'one'] : ['one', 'yuanli'];
+    trace.push(`第一次接觸 → 顯示入口區塊（${r.entryVersion}版，${r.entryOrder[0] === 'one' ? '一對一體驗' : '結構原力'}在前）`);
+  }
+  r.highIntent = branch === 'other' && want === 3 && pro;
+  if (r.highIntent) trace.push('他人分支＋判斷層＋專業身份 → 標記高意向名單，小編當日聯繫');
+  r.pain = PAIN[branch][target];
+  if (a.q10?.place === 'other' || a.q10?.time === 'weekday') trace.push(`Q10 ${prefText(a.q10)} → 標記加開梯次需求`);
+  return r;
+}
+
+/* ---------- 結果頁 ---------- */
+/* 認識 → 學習 → 成為：逐步說明這堂課帶你走過什麼，不在這裡出現日期與價格 */
+const JOURNEY = {
+  yuanli: {
+    know: ['自己的身體結構——學會自我覺察，知道身體正在發生什麼', '結構空間——為什麼痠痛與姿勢問題，常常不是因為用力不夠', '擺位效率——放鬆不是用力按，而是放對位置'],
+    learn: [['工具放鬆：按摩球、滾筒', '放鬆技巧與擺位效率', '好好使用身體：躺、坐與站'],
+      ['動態中覺察，在移動中改變身體結構', '順勢技巧：日常自我還原小撇步', '日常移動技巧：走路、跑步、上下樓梯、側併步'],
+      ['順勢調整：串聯身體空間', '創勢調整：創造身體空間', '建立自我修正身體的能力']],
+    become: { self: '不再只是「說不出哪裡怪」——你能感覺到身體的變化，並在日常中隨時把自己調整回來。', other: '先清楚感覺自己，你對學員的判斷會更有根據，也能把這套覺察的方法帶進你的教學。' }
+  },
+  xunlian: {
+    know: ['結構空間——訓練的核心不是肌肉收縮，而是創造空間', '評估身體空間的方法：從背面觀到側面觀', '真實的動作次序——什麼才是「良好的結構發力」'],
+    learn: [['在傳統重訓動作中加入結構思維，改良動作而不破壞結構', '創造身體空間的方法', '動作實作：呼吸、死蟲、下拉、肩推、單側臥推、單腳硬舉、跪姿後仰'],
+      ['深度評估身體的空間', '精研骨盆腔動作，矯正結構發力次序', '動作實作：超人、側棒式、結構深蹲、站姿推拉與旋轉、相撲硬舉、分腿蹲等'],
+      ['動作強度進程：結構穩定 → 強度 → 速度 → 複雜度', '動作頻率與速率的影響', '創造所有關節結構的訓練方法，以及動態的結構訓練動作']],
+    become: { self: '熟悉的重訓動作不用換掉，而是練得更有空間、更有意識——強度往上加，身體不再跟著卡。', other: '你能用結構的邏輯為學員安排動作與強度，讓他們練得更有效率，也更安全。' }
+  },
+  shunshi: {
+    know: ['身體結構的差異性，以及整體筋膜的影響力', '順勢空間——不製造問題的動作方法', '關節的五個模式，與遠端、近端原理'],
+    learn: [['擺位操作：擺位與重心擺位', '順勢呼吸、順勢肩推、順勢髖伸'],
+      ['順勢空間與連結的應用方式', '評估身體訓練的邏輯與方法，理解身體受限的範圍', '探索順勢路徑：動作的次序性']],
+    become: { self: '動作不再卡卡、怪怪的——你知道卡點在哪裡，也能順著結構，讓身體自然地發力。', other: '你能看見學員的卡點在哪裡，並有具體的策略，帶他們順暢地做出動作。' }
+  },
+  anmo: {
+    know: ['組織的凹陷與卡點——找到身體真正的問題點', '按壓的順逆方向——按摩的起手式', '基礎的結構概念'],
+    learn: [['基礎評估判斷：認識凹陷與卡點', '創造相鄰擺位按壓，提升按摩效率', '上肢與下肢的實務操作練習'],
+      ['整合上肢、下肢與軀幹的操作', '整體評估的方式']],
+    become: { other: '身邊的人突然不舒服時，你不再盲目按壓——按得準，也按得省力。' }
+  },
+  shoufa: {
+    know: ['深淺層筋膜與關節的滑動', '皮膚的方向——了解身體結構狀態的第一步', '從局部到整體——找到不適的真正源頭'],
+    learn: [['四肢順勢滾壓', '兩手協調：省力又有效的基礎身法', '改變身體結構：重心的擺位', '解開四肢單關節動作：肩與髖'],
+      ['整體評估的方法，判讀調整順序', '中軸的調整方式', '深層凹陷的處理方式'],
+      ['進階身法應用', '順勢手法與創勢手法', '頭顱、中軸調整']],
+    become: { other: '你從「放鬆局部」升級為「改善長期問題」——用雙手找到源頭，成為客戶信任的調整者。' }
+  }
+};
+
+function heroCard(r) {
+  const c = COURSES[r.plan.key];
+  return `<section class="hero" style="background:${c.main};color:#F5F4F1">
+    <div style="font-size:14px;color:${c.sub}">最適合你的是</div>
+    <div><div class="cname">${c.name}認證</div><div class="plan">${esc(r.plan.label)}</div></div>
+    <div class="tag" style="color:${c.sub}">${c.tagline}</div>
+    <div class="lvchips">${r.plan.levels.map(i => `<span style="border-color:${c.sub}">LEVEL ${i}｜${LV_NAME[i - 1]}</span>`).join('')}</div>
+  </section>`;
+}
+
+function journeyCard(r) {
+  const c = COURSES[r.target], j = JOURNEY[r.target];
+  const become = j.become[r.branch] || j.become.other || j.become.self;
+  const learn = r.plan.levels.map(i => `<div class="jlv"><div class="jlvname" style="color:${c.main}">LEVEL ${i}｜${LV_NAME[i - 1]}</div>
+      <ul>${j.learn[i - 1].map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`).join('');
+  const step = (n, lab, head, body) => `<div class="jstep"><div class="jnum" style="background:${c.main}">${n}</div>
+      <div class="jbody"><div class="jlab" style="color:${c.main}">${lab}</div><h4>${head}</h4>${body}</div></div>`;
+  return `<section class="card journey"><h3>${c.name}認證，會帶你走過這三步</h3>
+    ${step('01', '認識', '你會先認識', `<ul>${j.know.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`)}
+    ${step('02', '學習', '你會學會', learn)}
+    ${step('03', '成為', '最後，你會成為', `<blockquote style="border-color:${c.main}">${esc(r.visionText)}</blockquote>
+      <p>${esc(become)}</p><p class="jdepth">這正是${c.name}認證「${r.depth}」層級要帶你到達的地方。</p>`)}
+  </section>`;
+}
+
+function openingText(r) {
+  const c = COURSES[r.target];
+  if (r.who === '老學員') return `歡迎回來。你想${r.pain}的方向很清楚，這是最適合你的下一步。`;
+  if (r.who === '一對一學員，首次進修') return '你在一對一課程中已經接觸過結構思維，這一次，我們陪你把它變成自己的能力。';
+  if (r.who === '認證課學員') return `接續你上過的認證課，這是我們為你整理的${c.name}下一步。`;
+  return `你想${r.pain}的方向很明確——以下是最符合你目標的認證課。`;
+}
+
+function whyCard(r, a) {
+  const c = COURSES[r.target];
+  let html = `<p>${REASON[r.target + '-' + r.branch]}</p>`;
+  if (r.branch === 'other' && Q3_ADDON[a.q3]) html += `<p>${Q3_ADDON[a.q3].replace('{c}', c.name)}</p>`;
+  if (r.compSame) html += `<p>你描述的身體狀態，也正是${c.name}最核心處理的問題。</p>`;
+  return `<section class="card why"><h3>為什麼推薦你</h3>${html}</section>`;
+}
+
+function pathCard(r) {
+  return `<section class="card"><h3>你的學習路徑</h3><div class="path">${r.path.map(s => `
+    <div class="step"><div class="dot"><i></i><s></s></div><div class="body"><div class="lab">${s.lab}</div><div class="what">${esc(s.what)}</div><div class="rs">${esc(s.rs)}</div></div></div>`).join('')}</div></section>`;
+}
+
+function entryCard(r) {
+  if (!r.firstTime) return '';
+  const c = COURSES[r.target];
+  const items = {
+    one: r.entryVersion === '專業' ? '<li><b>預約一對一結構整合體驗</b>：用你自己的身體，直接感受結構思維如何運作</li>' : '<li><b>預約一對一結構整合體驗</b>：用一堂課的時間，親身感受結構思維</li>',
+    yuanli: r.entryVersion === '專業' ? '<li><b>從結構原力 LEVEL 1-2 開始</b>：系統性理解凝聚看待身體的方式，之後進入任何認證課都能更快吸收</li>' : '<li><b>從結構原力 LEVEL 1-2 開始</b>：從認識自己的身體出發，進入凝聚的結構世界</li>'
+  };
+  const list = r.entryOrder.map(k => items[k]).join('');
+  if (r.entryVersion === '專業') return `<section class="card entry"><h3>想更快進入凝聚的結構世界？</h3>
+    <p>凝聚的「結構思維」看待身體的方式，和多數訓練與徒手系統不太一樣。它不是更基礎，而是另一套觀察身體的語言。如果你希望在${c.name}的課堂上更快接上這套語言，我們提供${r.entryOrder.length > 1 ? '兩種' : '一個'}入口：</p>
+    <ul>${list}</ul><p class="lede" style="font-size:14px">${r.target === 'yuanli' ? '這不是必要條件，你也可以直接報名。' : `兩者都不是必要條件，你也可以直接從${c.name} LEVEL 1 開始。`}</p></section>`;
+  return `<section class="card entry"><h3>第一次認識凝聚？</h3>
+    <p>凝聚對身體的理解，和你過去在外面接觸到的可能不太一樣。如果想先感受一下，我們很歡迎你：</p>
+    <ul>${list}</ul><p class="lede" style="font-size:14px">準備好了，也可以直接報名${c.name} LEVEL 1。</p></section>`;
+}
+
+function notRecCard(r) {
+  if (!r.notRec?.length) return '';
+  return `<section class="card notrec"><h3>我們沒有推薦的，以及為什麼</h3><ul>${r.notRec.map(t => `<li>${esc(t)}</li>`).join('')}</ul></section>`;
+}
+
+/* ---------- 留資料（Leads） ---------- */
+let lead = { done: false, skipped: false, name: '' };
+
+function leadForm(cta) {
+  return `<form id="lead" novalidate>
+      <label class="f" for="ld-name">真實姓名<input type="text" id="ld-name" autocomplete="name"></label>
+      <label class="f" for="ld-phone">聯絡手機<input type="tel" id="ld-phone" autocomplete="tel" inputmode="tel"></label>
+      <label class="f" for="ld-mail">電子信箱<input type="email" id="ld-mail" autocomplete="email"></label>
+      <label class="consent" for="ld-ok"><input type="checkbox" id="ld-ok"> <span>我同意凝聚運動顧問依個人資料保護法，蒐集我填寫的資料與測驗回答，用於課程推薦、開課通知與行銷聯繫，並可隨時要求停止使用。</span></label>
+      <p class="err" id="ld-err" hidden></p>
+      <button class="btn wide cta" type="submit">${esc(cta)} <span class="arrow" aria-hidden="true">${ARROW}</span></button>
+    </form>`;
+}
+
+function leadCard(r) {
+  if (r.type === 'C') return `<section class="card leadcard" id="leadcard"><h3>留下資料，取得校友專屬方案</h3>
+    <p class="lede" style="font-size:14px">複訓優惠價與師資培訓說明，專人會在 24 小時內與你聯繫。</p>${leadForm('取得校友專屬方案')}</section>`;
+  return `<section class="card leadcard" id="leadcard"><h3>想知道開課日期與超早鳥價格？</h3>
+    <p class="lede" style="font-size:14px">留下資料，專人會在 24 小時內告訴你最近一梯的開課日期與超早鳥最優惠價格。名額有限，送出即為你保留。</p>${leadForm('點我卡位超早鳥最優惠價格')}</section>`;
+}
+
+function bindLead(onDone) {
+  const f = document.getElementById('lead');
+  if (!f) return;
+  f.addEventListener('input', () => { document.getElementById('ld-err').hidden = true; });
+  f.addEventListener('change', () => { document.getElementById('ld-err').hidden = true; });
+  // 只記錄「開始填寫」，不記錄還沒送出的內容
+  f.addEventListener('focusin', () => { if (!T.leadStarted) { T.leadStarted = true; T.ev('lead_start', null, { screen: T.s.screen }); } });
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const err = document.getElementById('ld-err');
+    const n = document.getElementById('ld-name').value.trim(), p = document.getElementById('ld-phone').value.trim(), m = document.getElementById('ld-mail').value.trim();
+    let msg = '';
+    if (!n || !p || !m) msg = '請填寫姓名、手機與信箱';
+    else if (!/^09\d{8}$/.test(p.replace(/[-\s]/g, ''))) msg = '手機請填 09 開頭的 10 碼號碼';
+    else if (!/^\S+@\S+\.\S+$/.test(m)) msg = '信箱格式看起來不對，請再確認';
+    else if (!document.getElementById('ld-ok').checked) msg = '請勾選同意個資蒐集';
+    if (msg) { err.textContent = msg; err.hidden = false; return; }
+    const btn = f.querySelector('button[type=submit]'); const label = btn.innerHTML;
+    btn.disabled = true; btn.textContent = '送出中…';
+    let ok = false;
+    try {
+      if (T.sid) {
+        await Promise.all([T.push(), T.flush()]);
+        const r = await fetch(`/api/session/${T.sid}/lead`, { method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-session-token': T.token },
+          body: JSON.stringify({ name: n, phone: p, email: m, consent: true }) });
+        ok = r.ok;
+      }
+    } catch {}
+    btn.disabled = false; btn.innerHTML = label;
+    if (!ok) { err.textContent = '暫時無法送出，請稍後再試，或透過 LINE 直接聯繫我們。'; err.hidden = false; T.ev('lead_error'); return; }
+    if (T.s.screen === 'gate' && !T.s.gateAction) T.s.gateAction = 'submit';
+    T.s.stage = 4;
+    lead = { done: true, skipped: lead.skipped, name: n };
+    onDone();
+  };
+}
+
+function lineBtn(label, cls) {
+  return `<button class="btn ${cls || ''} wide" data-line>${label}</button>`;
+}
+function lineCard() {
+  return `<section class="card bind" data-track="line"><h3>把結果帶走</h3>
+    ${lineBtn('用 LINE 接收完整學習路徑＋測驗專屬優惠')}
+    ${CFG.oaBasicId ? '' : '<p class="mock">尚未設定官方帳號 ID，正式上線後點擊會開啟 LINE 並自動傳送，結果直接回到你的聊天室。</p>'}
+  </section>`;
+}
+function bindLine() {
+  app.querySelectorAll('[data-line]').forEach(b => b.onclick = () => {
+    const onGate = T.s.screen === 'gate';
+    T.ev('line_click', null, { screen: T.s.screen });
+    if (onGate && !T.s.gateAction) T.set({ gateAction: 'line' }, true);
+    const code = bindCode();
+    const url = oaLink(`我想收到我的結構學習路徑（#${code}）`);
+    T.beacon('line_click');
+    if (url) location.href = url;
+    else { const t = b.innerHTML; b.textContent = '尚未設定官方帳號，上線後會開啟 LINE'; setTimeout(() => b.innerHTML = t, 1600); }
+  });
+}
+
+function doneBanner(r) {
+  return `<section class="card donecard"><h3>已收到，${esc(lead.name)}</h3>
+    <p>${r.type === 'C' ? '我們會在 24 小時內與你聯繫，說明校友複訓價與師資培訓。' : '你的超早鳥名額已為你保留，專人會在 24 小時內與你聯繫，告訴你開課日期與超早鳥最優惠價格。'}</p></section>`;
+}
+
+/* 結果前的留資料頁：在好奇心最高的時候先露出主推課程，完整內容與超早鳥價留資料後解鎖 */
+function showGate(r) {
+  setBar(TOTAL);
+  const c = COURSES[r.target];
+  const isC = r.type === 'C';
+  const teaser = isC
+    ? `<section class="hero teaser" style="background:${c.main};color:#F5F4F1">
+        <div style="font-size:14px;color:${c.sub}">你已完成</div>
+        <div class="cname">${c.name}認證全系列</div>
+        <div class="tag" style="color:${c.sub}">${c.tagline}</div></section>`
+    : `<section class="hero teaser" style="background:${c.main};color:#F5F4F1">
+        <div style="font-size:14px;color:${c.sub}">最適合你的是</div>
+        <div><div class="cname">${c.name}認證</div><div class="plan">${esc(r.plan.label)}</div></div>
+        <div class="tag" style="color:${c.sub}">${c.tagline}</div></section>`;
+  const items = isC
+    ? ['校友專屬複訓優惠價', '成為師資的培訓路徑']
+    : ['為什麼推薦你：依你的回答個別整理', '這堂課會帶你認識、學習、成為什麼', '開課日期與超早鳥最優惠價格（名額有限）'];
+  app.innerHTML = `<section class="gate">
+    <div class="eyebrow">測驗完成</div>
+    <h2>${isC ? '你的下一步已經準備好了' : '你的學習路徑已經準備好了'}</h2>
+    ${teaser}
+    <div class="card leadcard" id="leadcard">
+      <h3>留下資料，解鎖完整結果</h3>
+      <ul class="unlock">${items.map(t => `<li><span class="ck" aria-hidden="true">✓</span>${esc(t)}</li>`).join('')}</ul>
+      ${leadForm(isC ? '取得校友專屬方案' : '點我卡位超早鳥最優惠價格')}
+    </div>
+    <div class="or"><span>或</span></div>
+    ${lineBtn('用 LINE 一鍵接收完整結果', 'ghost')}
+    <div class="nav" style="justify-content:center"><button class="link" id="skipGate">先看完整結果</button></div>
+    ${backLink()}
+  </section>`;
+  bindMocks(); bindLine();
+  bindLead(showResult);
+  T.screen('gate'); T.set({ stage: Math.max(T.s.stage, 3) }, true); T.ev('gate_view');
+  document.getElementById('skipGate').onclick = () => { lead.skipped = true; T.ev('gate_skip'); T.set({ gateAction: T.s.gateAction || 'skip' }); showResult(); };
+  document.getElementById('back').onclick = () => { T.s.backs++; T.ev('back', 'gate'); go(TOTAL - 1); };
+  top0();
+}
+
+function finish() {
+  const r = compute(answers);
+  lastResult = r;
+  T.ev('complete', null, { type: r.type, course: COURSES[r.target].name });
+  T.set({ stage: Math.max(T.s.stage, 2), result: resultForTrack(r) }, true);
+  if (r.type === 'B') showResult(); else showGate(r);
+}
+
+function pageA(r, a) {
+  const open = (lead.done ? esc(lead.name) + '，' : '') + esc(openingText(r));
+  if (lead.done) return `<p class="opening">${open}</p>${doneBanner(r)}${heroCard(r)}${whyCard(r, a)}${journeyCard(r)}${pathCard(r)}${entryCard(r)}${notRecCard(r)}${lineCard()}`;
+  return `<p class="opening">${open}</p>${heroCard(r)}${whyCard(r, a)}${journeyCard(r)}${leadCard(r)}${pathCard(r)}${entryCard(r)}${notRecCard(r)}${lineCard()}`;
+}
+function pageB(r) {
+  const c = COURSES[r.target];
+  return `<div class="rule"></div><h2 style="font-size:26px">先讓身體好起來，再來學</h2>
+    <section class="card"><p>你提到最近有急性受傷，或正在影響生活的疼痛。認證課是幫助你理解身體、協助他人的進修課程，現在最重要的，是先照顧好你自己。</p>
+    <p>建議你先尋求正規醫療評估；如果需要結構觀點的協助，凝聚的一對一服務可以陪你處理現在的狀況。</p>
+    <button class="btn wide" data-mock>預約一對一諮詢</button></section>
+    <section class="card"><h3>身體穩定之後，適合你的學習路徑</h3>
+    <p>依你的回答，最適合你的是：<b>${c.name}認證｜${esc(r.plan.label)}</b></p>
+    <p class="lede" style="font-size:14px">${REASON[r.target + '-' + r.branch]}</p>
+    ${lineBtn('用 LINE 接收學習路徑，下一梯次開課時通知我', 'ghost')}</section>`;
+}
+
+function pageC(r) {
+  const c = COURSES[r.target];
+  const btn = lead.done ? '' : '<button class="btn" data-tolead>留下資料，我們與你聯繫</button>';
+  return `<p class="opening">${lead.done ? esc(lead.name) + '，' : ''}你已經完成${c.name}的所有課程，而你仍然在意這個方向——這代表你正在這條路上持續深入。我們為你準備了兩個下一步：</p>
+    ${lead.done ? doneBanner(r) : ''}
+    <section class="card"><h3>回來複訓</h3><p>學過一次，和真正內化，中間往往還有一段距離。我們以非常優惠的價格歡迎你回到課堂，把還沒完全搞懂的部分釐清，用現在的你重新理解當時學過的內容。</p>
+      <div class="nav">${btn}<button class="btn ghost" data-mock>私訊小編了解更多</button></div></section>
+    <section class="card"><h3>成為師資</h3><p>對這個面向有無止盡的探求，代表你已經走在成為師資的路上。如果你想把這套結構思維傳遞給更多人，我們想和你聊聊。</p>
+      <div class="nav">${btn}<button class="btn ghost" data-mock>私訊小編了解更多</button></div></section>
+    ${lead.done ? '' : leadCard(r)}`;
+}
+function answerSummary(a) {
+  return QUESTIONS.map(q => {
+    let v;
+    if (q.type === 'courses') v = a.q8 ? (a.q8.took === 'yes' ? '上過：' + a.q8.done.map(x => COURSES[x.slice(0, -1)].name + ' L' + x.slice(-1)).join('、') : '還沒有') : '—';
+    else if (q.type === 'pref') v = a.q10 ? prefText(a.q10) || '略過' : '—';
+    else v = ((q.options(a) || []).find(o => o[0] === a[q.id]) || [])[1] || '—';
+    return `${q.id.toUpperCase()}　${q.title(a)}\n　→ ${v}`;
+  }).join('\n');
+}
+
+function resultLine(r) {
+  const c = COURSES[r.target];
+  if (r.type === 'C') return `結果頁 C：已完成${c.name}全系列 → 複訓／成為師資`;
+  return `結果頁 ${r.type}：${c.name}認證｜${r.plan.label}` + (r.path ? `\n路徑：${r.path.map(s => s.lab + ' ' + s.what).join(' → ')}` : '');
+}
+
+function feedbackCard() {
+  const opts = ['結構原力', '結構訓練', '順勢訓練', '結構手法', '結構按摩', '一對一服務', '不確定'];
+  return `<section class="card fb"><h3>試填回饋：這個推薦準嗎？</h3>
+    <form id="fb" novalidate>
+      <label class="f" for="fb-who">你的稱呼（例：Eason／模擬某位學員）<input type="text" id="fb-who" maxlength="40"></label>
+      <div class="f">推薦結果<div class="radios">
+        <label for="fb-a1"><input type="radio" name="acc" id="fb-a1" value="準確">準確</label>
+        <label for="fb-a2"><input type="radio" name="acc" id="fb-a2" value="部分準確">部分準確</label>
+        <label for="fb-a3"><input type="radio" name="acc" id="fb-a3" value="不準確">不準確</label></div></div>
+      <label class="f" for="fb-exp">你預期應該推薦哪一堂？<select id="fb-exp"><option value="">（與結果相同可不選）</option>${opts.map(o => `<option>${o}</option>`).join('')}</select></label>
+      <label class="f" for="fb-txt">題目、選項或文案的意見<textarea id="fb-txt" maxlength="1500" placeholder="例：Q4 第四個選項看不懂；推薦理由太長"></textarea></label>
+      <p class="err" id="fb-err" hidden></p>
+      <button class="btn" type="submit" id="fb-send">送出回饋</button>
+      <p class="okmsg" id="fb-ok" hidden></p>
+    </form>
+    <div id="fb-copy" hidden>
+      <p style="font-size:14px">沒辦法直接送出？把下面這段複製給 Cico 也可以：</p>
+      <div class="copybox" id="fb-text"></div>
+      <button class="btn ghost" id="fb-copybtn" type="button">複製內容</button>
+    </div>
+  </section>`;
+}
+
+function traceCard(r, a) {
+  return `<details class="trace card"><summary>推薦邏輯追蹤（測試用）</summary>
+    <ol>${r.trace.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
+    <div class="copybox" style="margin-top:10px">${esc(answerSummary(a))}</div></details>`;
+}
+
+function bindMocks() {
+  app.querySelectorAll('[data-mock]').forEach(b => {
+    b.dataset.orig = b.innerHTML;
+    b.addEventListener('click', () => {
+      if (b.dataset.flash) return;
+      b.dataset.flash = 1; b.textContent = '原型展示：正式版會開啟這個連結';
+      setTimeout(() => { b.innerHTML = b.dataset.orig; delete b.dataset.flash; }, 1600);
+    });
+  });
+}
+
+function scrollToLead() {
+  const card = document.getElementById('leadcard');
+  if (!card) return;
+  card.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  setTimeout(() => document.getElementById('ld-name')?.focus({ preventScroll: true }), 350);
+}
+
+function showResult() {
+  setBar(TOTAL);
+  const a = answers;
+  const r = compute(a);
+  lastResult = r;
+  const body = r.type === 'B' ? pageB(r) : r.type === 'C' ? pageC(r) : pageA(r, a);
+  const sticky = r.type !== 'B' && !lead.done;
+  app.innerHTML = `<div class="wrap" style="padding-block:8px">${body}
+    <p class="mock" style="text-align:center">對結果有疑問？透過 LINE 問我們。</p>
+    ${CFG.trial ? feedbackCard() + traceCard(r, a) : ''}
+    <div class="nav"><button class="btn ghost wide" id="again">${CFG.trial ? '用另一個身份再測一次' : '重新測驗'}</button></div>
+    ${sticky ? '<div class="stickpad"></div>' : ''}</div>
+    ${sticky ? `<div class="sticky" id="sticky"><button class="btn wide cta" data-tolead>${r.type === 'C' ? '留下資料，取得校友專屬方案' : '點我卡位超早鳥最優惠價格'} <span class="arrow" aria-hidden="true">${ARROW}</span></button></div>` : ''}`;
+  bindMocks(); bindLine();
+  app.querySelectorAll('[data-tolead]').forEach(b => b.onclick = () => { T.s.ctaClicks++; T.ev('cta', null, { to: 'lead', from: b.id || b.className }); T.set({}); scrollToLead(); });
+  bindLead(showResult);
+  T.s.result = resultForTrack(r);
+  if (T.s.stage < 2) T.s.stage = 2;
+  T.screen('result'); T.ev('result_view', null, { type: r.type, lead: lead.done });
+  // 標記各段落，追蹤捲到哪裡
+  const mark = (sel, k) => { const el = app.querySelector(sel); if (el) el.dataset.track = k; };
+  mark('.hero', 'hero'); mark('.why', 'why'); mark('.journey', 'journey'); mark('#leadcard', 'lead');
+  mark('.entry', 'entry'); mark('.fb', 'feedback');
+  const pc = app.querySelector('.path'); if (pc) pc.closest('.card').dataset.track = 'path';
+  trackDepth();
+  const st = document.getElementById('sticky'), card = document.getElementById('leadcard');
+  if (st && card && 'IntersectionObserver' in window) {
+    new IntersectionObserver(es => es.forEach(e => st.classList.toggle('off', e.isIntersecting)), { threshold: 0.15 }).observe(card);
+  }
+  if (CFG.trial) bindFeedback(r, a);
+  document.getElementById('again').onclick = () => { T.ev('restart'); renderIntro(); };
+  top0();
+}
+/* ---------- 試填回饋 ---------- */
+function bindFeedback(r, a) {
+  const f = document.getElementById('fb');
+  const err = document.getElementById('fb-err');
+  f.addEventListener('input', () => { err.hidden = true; });
+  f.addEventListener('change', () => { err.hidden = true; });
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const acc = f.querySelector('input[name=acc]:checked')?.value;
+    if (!acc) { err.textContent = '請先選擇推薦結果準不準'; err.hidden = false; return; }
+    const who = document.getElementById('fb-who').value.trim();
+    const exp = document.getElementById('fb-exp').value;
+    const txt = document.getElementById('fb-txt').value.trim();
+    const rec = {
+      at: new Date().toISOString(), tester: who || '未署名', accuracy: acc, expected: exp, comment: txt,
+      result: resultLine(r), resultType: r.type, course: COURSES[r.target].name, plan: r.plan?.label || '',
+      answers: answerSummary(a), lead: lead.done ? '有留資料' : lead.skipped ? '略過留資料' : '—'
+    };
+    const send = document.getElementById('fb-send');
+    send.disabled = true; send.textContent = '送出中…';
+    let saved = false;
+    try {
+      if (T.sid) {
+        const res = await fetch(`/api/session/${T.sid}/feedback`, { method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-session-token': T.token },
+          body: JSON.stringify({ tester: rec.tester, accuracy: acc, expected: exp, comment: txt }) });
+        saved = res.ok;
+      }
+    } catch (e2) { saved = false; }
+    send.disabled = false; send.textContent = '送出回饋';
+    const ok = document.getElementById('fb-ok');
+    const text = `【結構測驗試填回饋】\n試填者：${rec.tester}\n留資料：${rec.lead}\n推薦：${acc}${exp ? '（預期：' + exp + '）' : ''}\n意見：${txt || '無'}\n\n${rec.result}\n\n${rec.answers}`;
+    if (saved) { ok.textContent = '已送出，謝謝你的回饋！可以換一個身份再測一次。'; ok.hidden = false; document.getElementById('fb-copy').hidden = true; }
+    else {
+      ok.hidden = true;
+      document.getElementById('fb-text').textContent = text;
+      document.getElementById('fb-copy').hidden = false;
+    }
+  };
+  document.getElementById('fb-copybtn').onclick = async () => {
+    const box = document.getElementById('fb-text');
+    try { await navigator.clipboard.writeText(box.textContent); document.getElementById('fb-copybtn').textContent = '已複製'; }
+    catch (e) { const s = window.getSelection(), rg = document.createRange(); rg.selectNodeContents(box); s.removeAllRanges(); s.addRange(rg); document.getElementById('fb-copybtn').textContent = '已選取，請按複製'; }
+  };
+}
+
+/* ================= 設定、LIFF 與追蹤 ================= */
+let CFG = { liffId: '', trial: false, oaBasicId: '' };
+const T = {
+  sid: null, token: null, profile: null, resume: null, ready: null, started: false, queue: [], timer: null, ptimer: null,
+  envInfo: null, source: null, idToken: null, anonId: null,
+  s: null,
+  reset() {
+    this.s = { stage: 0, lastQ: 0, screen: 'intro', qTimes: {}, backs: 0, changes: 0, ctaClicks: 0,
+      resultDepth: null, gateAction: null, result: null, resumedFrom: null };
+    this.qShownAt = 0; this.seen = new Set(); this.leadStarted = false;
+  },
+  async open() {
+    try { this.anonId = localStorage.getItem('sq_anon'); if (!this.anonId) { this.anonId = crypto.randomUUID(); localStorage.setItem('sq_anon', this.anonId); } }
+    catch { this.anonId = null; }
+    try { const r = await fetch('/api/config'); if (r.ok) CFG = { ...CFG, ...(await r.json()) }; } catch {}
+    await initLiff();
+    this.source = readSource();
+    this.envInfo = readEnv();
+    return this.startSession();
+  },
+  async startSession() {
+    this.sid = null; this.token = null;
+    try {
+      const r = await fetch('/api/session/start', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ idToken: this.idToken, anonId: this.anonId, env: this.envInfo, source: this.source, trial: CFG.trial }) });
+      if (!r.ok) throw new Error('start ' + r.status);
+      const d = await r.json();
+      this.sid = d.sessionId; this.token = d.token; this.profile = d.profile || this.profile; this.resume = d.resume;
+      if (this.s.stage > 0 || this.s.screen !== 'intro') this.push();
+      this.flush();
+    } catch (e) { /* 沒有後端時（例如本機直接開檔），追蹤安靜地停用 */ }
+    return this;
+  },
+  ev(type, q, payload) {
+    this.queue.push({ type, q: q || null, payload: payload || null, at: new Date().toISOString() });
+    clearTimeout(this.timer); this.timer = setTimeout(() => this.flush(), 1500);
+  },
+  set(patch, now) {
+    Object.assign(this.s, patch);
+    clearTimeout(this.ptimer);
+    this.ptimer = setTimeout(() => this.push(), now ? 0 : 400);
+  },
+  snapshot() {
+    return { ...this.s, answers, q10Pref: prefText(answers.q10) || null };
+  },
+  async push() {
+    if (!this.sid) return;
+    try { await fetch(`/api/session/${this.sid}/progress`, { method: 'POST', keepalive: true,
+      headers: { 'content-type': 'application/json', 'x-session-token': this.token }, body: JSON.stringify(this.snapshot()) }); } catch {}
+  },
+  async flush() {
+    if (!this.sid || !this.queue.length) return;
+    const events = this.queue.splice(0, 60);
+    try { await fetch(`/api/session/${this.sid}/events`, { method: 'POST', keepalive: true,
+      headers: { 'content-type': 'application/json', 'x-session-token': this.token }, body: JSON.stringify({ events }) }); }
+    catch { this.queue.unshift(...events); }
+    if (this.queue.length) this.flush();
+  },
+  /* 離開或切到背景：用 sendBeacon 把剩下的事件和最後進度一起送出（關掉頁面也送得到） */
+  beacon(reason) {
+    if (!this.sid || this.left) return;
+    this.left = true; setTimeout(() => { this.left = false; }, 1500);
+    this.queue.push({ type: 'leave', q: this.s.screen, payload: { reason }, at: new Date().toISOString() });
+    const body = JSON.stringify({ token: this.token, events: this.queue.splice(0, 60), progress: this.snapshot() });
+    const url = `/api/session/${this.sid}/events`;
+    if (!(navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'text/plain' })))) {
+      fetch(url, { method: 'POST', keepalive: true, headers: { 'content-type': 'text/plain' }, body }).catch(() => {});
+    }
+  },
+  screen(name) {
+    this.s.screen = name;
+    if (/^q\d+$/.test(name)) this.qShownAt = performance.now();
+    this.set({});
+  },
+  answered(i, v) {
+    const k = 'q' + (i + 1);
+    const ms = this.qShownAt ? Math.round(performance.now() - this.qShownAt) : 0;
+    this.s.qTimes[k] = (this.s.qTimes[k] || 0) + ms;
+    this.ev('answer', k, { v, ms });
+    this.set({ lastQ: Math.max(this.s.lastQ, i + 1), stage: Math.max(this.s.stage, 1) });
+  }
+};
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') T.beacon('hidden'); });
+window.addEventListener('pagehide', () => T.beacon('pagehide'));
+
+async function initLiff() {
+  if (!CFG.liffId || !window.liff) return;
+  try {
+    await Promise.race([liff.init({ liffId: CFG.liffId }), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))]);
+    if (liff.isLoggedIn()) T.idToken = liff.getIDToken();
+  } catch (e) { /* LIFF 失敗時照樣可以作答，只是沒有 LINE 身分 */ }
+}
+
+function readSource() {
+  const p = new URLSearchParams(location.search);
+  // LIFF 第一次轉址時，原本的參數放在 liff.state 裡
+  const st = p.get('liff.state');
+  if (st) { const qi = st.indexOf('?'); if (qi >= 0) new URLSearchParams(st.slice(qi + 1)).forEach((v, k) => { if (!p.has(k)) p.set(k, v); }); }
+  const g = k => p.get(k) || undefined;
+  const clickIds = {}; ['fbclid', 'gclid', 'ttclid', 'twclid'].forEach(k => { if (p.get(k)) clickIds[k] = p.get(k); });
+  return { utm_source: g('utm_source'), utm_medium: g('utm_medium'), utm_campaign: g('utm_campaign'), utm_content: g('utm_content'),
+    utm_term: g('utm_term'), ref: g('ref'), entry: g('entry'), clickIds: Object.keys(clickIds).length ? clickIds : undefined,
+    landingUrl: location.href.split('#')[0], referrer: document.referrer || undefined };
+}
+
+function readEnv() {
+  const e = { userAgent: navigator.userAgent, language: navigator.language, screen: `${screen.width}x${screen.height}` };
+  try { e.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch {}
+  const ua = navigator.userAgent;
+  e.os = /iPhone|iPad|iPod/.test(ua) ? 'ios' : /Android/.test(ua) ? 'android' : 'web';
+  if (window.liff && CFG.liffId) {
+    try {
+      e.isInClient = liff.isInClient();
+      e.os = liff.getOS() || e.os;
+      e.language = (liff.getAppLanguage ? liff.getAppLanguage() : liff.getLanguage()) || e.language;
+      e.lineVersion = liff.getLineVersion() || undefined;
+      const ctx = liff.getContext();
+      if (ctx) { e.contextType = ctx.type; e.viewType = ctx.viewType; }
+    } catch {}
+  } else e.isInClient = /Line\//.test(ua);
+  return e;
+}
+
+function resultForTrack(r) {
+  const c = COURSES[r.target];
+  return { type: r.type, course: c.name, plan: r.plan?.label || (r.type === 'C' ? '已完成全系列' : ''), highIntent: !!r.highIntent,
+    branch: r.branch, target: r.target, who: r.who, path: (r.path || []).map(s => s.what) };
+}
+
+/* 結果頁看到哪一段 */
+const DEPTH_ORDER = ['hero', 'why', 'journey', 'lead', 'path', 'entry', 'line', 'feedback'];
+function trackDepth() {
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const k = e.target.dataset.track;
+    if (T.seen.has(k)) return;
+    T.seen.add(k); T.ev('see', null, { section: k });
+    const cur = DEPTH_ORDER.indexOf(T.s.resultDepth);
+    if (DEPTH_ORDER.indexOf(k) > cur) T.set({ resultDepth: k });
+  }), { threshold: 0.4 });
+  app.querySelectorAll('[data-track]').forEach(el => io.observe(el));
+}
+
+function oaLink(text) {
+  return CFG.oaBasicId ? `https://line.me/R/oaMessage/${encodeURIComponent(CFG.oaBasicId)}/?${encodeURIComponent(text)}` : '';
+}
+function bindCode() { return T.sid ? T.sid.replace(/-/g, '').slice(0, 6).toUpperCase() : ''; }
+
+/* 先畫出開頭頁，LIFF 與紀錄在背景建立 */
+T.reset();
+renderIntro();
+T.ready = T.open().then(() => { if (idx === -1 && T.s.stage === 0) renderIntro(); });
+</script>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>測驗數據後台</title>
+<style>
+:root {
+  --bg: #F5F4F1; --surface: #FFFFFF; --ink: #2C2B28; --muted: #77736A; --line: #E2DED5;
+  --bronze: #9C7A4B; --bronze-soft: #EFE6D8; --bar: #9C7A4B; --bar-track: #EDE9E1; --warn: #A03A22; --ok: #2F6B62;
+  --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --serif: "Noto Serif TC", "Songti TC", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1B1A18; --surface: #252320; --ink: #ECE9E2; --muted: #A8A39A; --line: #3A3733;
+    --bronze: #C9A473; --bronze-soft: #3A3127; --bar: #C9A473; --bar-track: #34312C; --warn: #E58C72; --ok: #8CC0B4; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.6; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--serif); font-size: 22px; margin: 0; letter-spacing: .04em; }
+h2 { font-family: var(--serif); font-size: 17px; margin: 0 0 10px; }
+.bar-top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+select, input, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+button { cursor: pointer; }
+button.primary { background: var(--bronze); border-color: var(--bronze); color: #fff; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.kpi small { color: var(--muted); display: block; }
+.kpi b { font-size: 26px; font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--muted); font-size: 12px; margin-left: 4px; }
+.funnel { display: flex; flex-direction: column; gap: 6px; }
+.frow { display: grid; grid-template-columns: 108px 1fr 92px; gap: 10px; align-items: center; }
+.frow .lab { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track { background: var(--bar-track); border-radius: 4px; height: 16px; position: relative; }
+.fill { background: var(--bar); height: 100%; border-radius: 4px; min-width: 2px; }
+.frow .num { text-align: right; font-variant-numeric: tabular-nums; }
+.frow .num small { color: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 13px; white-space: nowrap; }
+td.n, th.n { text-align: right; }
+tr.hot td { background: var(--bronze-soft); }
+.tw { overflow-x: auto; }
+.pill { display: inline-block; border-radius: 999px; padding: 1px 8px; font-size: 12px; border: 1px solid var(--line); white-space: nowrap; }
+.pill.lead { border-color: var(--ok); color: var(--ok); }
+.pill.drop { border-color: var(--warn); color: var(--warn); }
+.pill.hi { background: var(--bronze); border-color: var(--bronze); color: #fff; }
+.who { display: flex; gap: 8px; align-items: center; min-width: 140px; }
+.who img, .who i { width: 28px; height: 28px; border-radius: 50%; flex: none; background: var(--bar-track); object-fit: cover; }
+.muted { color: var(--muted); }
+.note { color: var(--muted); font-size: 13px; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.tabs button.on { background: var(--bronze-soft); border-color: var(--bronze); }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: var(--bronze-soft); }
+dialog { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); width: min(760px, 94vw); max-height: 88vh; padding: 0; }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+.dlg { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.kv { display: grid; grid-template-columns: 120px 1fr; gap: 4px 12px; font-size: 13px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; word-break: break-all; }
+.timeline { font-size: 13px; display: flex; flex-direction: column; gap: 2px; max-height: 340px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.timeline div { display: grid; grid-template-columns: 70px 110px 1fr; gap: 8px; }
+.login { max-width: 360px; margin: 80px auto; display: flex; flex-direction: column; gap: 10px; }
+.err { color: var(--warn); }
+.days { display: flex; align-items: flex-end; gap: 2px; height: 90px; }
+.days div { flex: 1; background: var(--bar); border-radius: 3px 3px 0 0; min-height: 1px; }
+.daysx { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="root"></div>
+<dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
+<script>
+const root = document.getElementById('root');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 + '%' : '—';
+const tpe = iso => iso ? new Date(iso).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+const STAGE = ['只打開', '作答中', '完成', '看到留資料頁', '已留資料'];
+const Q_NAME = ['目的', '痛點', '處理方式', '身體狀態', '願景', '身份', '一對一', '上過認證課', '急性不適', '地點時段'];
+let token = '';
+try { token = sessionStorage.getItem('adm') || ''; } catch {}
+let F = { days: 30, trial: 'all', list: 'all' };
+
+async function api(path) {
+  const r = await fetch(path, { headers: token ? { authorization: 'Bearer ' + token } : {} });
+  if (r.status === 401 || r.status === 503) { const e = new Error('auth'); e.status = r.status; throw e; }
+  if (!r.ok) throw new Error('http ' + r.status);
+  return r.json();
+}
+
+function loginView(status) {
+  root.innerHTML = `<div class="login card"><h1>測驗數據後台</h1>
+    <p class="note">${status === 503 ? '後台尚未設定登入方式：請設定 Cloudflare Access，或用 wrangler secret put ADMIN_TOKEN 設定後台密碼。' : '請輸入後台密碼（正式環境建議改用 Cloudflare Access 登入）。'}</p>
+    <input type="password" id="tk" placeholder="後台密碼" autocomplete="current-password">
+    <button class="primary" id="go">進入</button><p class="err" id="le"></p></div>`;
+  const go = async () => {
+    token = document.getElementById('tk').value.trim();
+    try { await api('/api/admin/summary?days=1'); try { sessionStorage.setItem('adm', token); } catch {} load(); }
+    catch { document.getElementById('le').textContent = '密碼不正確'; }
+  };
+  document.getElementById('go').onclick = go;
+  document.getElementById('tk').onkeydown = e => { if (e.key === 'Enter') go(); };
+}
+
+async function load() {
+  const q = `days=${F.days}&trial=${F.trial}`;
+  let sum, list;
+  try { [sum, list] = await Promise.all([api('/api/admin/summary?' + q), api(`/api/admin/sessions?${q}&stage=${F.list}`)]); }
+  catch (e) { if (e.message === 'auth') return loginView(e.status); root.innerHTML = '<p class="err">讀取失敗，請重新整理。</p>'; return; }
+  render(sum, list.sessions);
+}
+
+function render(S, sessions) {
+  const f = S.funnel;
+  const steps = [['打開測驗', f.opened], ['開始作答', f.started],
+    ...S.questions.map(x => [`答完 Q${x.q}`, x.answered]),
+    ['完成測驗', f.completed], ['看到留資料頁', f.gateViewed], ['留資料', f.lead]];
+  const max = Math.max(1, f.opened);
+  const worst = S.questions.reduce((m, x) => x.reached && x.droppedHere / x.reached > (m ? m.droppedHere / m.reached : 0) ? x : m, null);
+  const dmax = Math.max(1, ...S.daily.map(d => d.opened));
+  const fb = Object.fromEntries((S.feedback || []).map(x => [x.accuracy, x.n]));
+
+  root.innerHTML = `
+  <div class="bar-top"><h1>結構認證路徑測驗｜數據後台</h1>
+    <div class="filters">
+      <select id="fDays" aria-label="期間">${[7, 30, 90, 365].map(d => `<option value="${d}" ${F.days == d ? 'selected' : ''}>近 ${d} 天</option>`).join('')}</select>
+      <select id="fTrial" aria-label="範圍">${[['all', '全部紀錄'], ['real', '只看正式'], ['trial', '只看教練試填']].map(([v, t]) => `<option value="${v}" ${F.trial === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      <button id="reload">重新整理</button>
+      <button id="csv">匯出 CSV</button>
+    </div></div>
+
+  <div class="kpis">
+    ${kpi('打開', f.opened)}${kpi('開始作答', f.started, pct(f.started, f.opened))}${kpi('完成測驗', f.completed, pct(f.completed, f.opened))}
+    ${kpi('留資料', f.lead, pct(f.lead, f.opened))}${kpi('完成後留資料', f.lead, pct(f.lead, f.completed))}${kpi('有 LINE 身分', f.identified, pct(f.identified, f.opened))}
+  </div>
+
+  <div class="grid2">
+    <section class="card"><h2>漏斗</h2><div class="funnel">
+      ${steps.map(([l, v]) => `<div class="frow" title="${esc(l)}：${v} 人（${pct(v, max)}）"><span class="lab">${esc(l)}</span>
+        <div class="track"><div class="fill" style="width:${v / max * 100}%"></div></div><span class="num">${v} <small>${pct(v, max)}</small></span></div>`).join('')}
+    </div></section>
+
+    <section class="card"><h2>跳出分析：停在哪裡離開</h2>
+      <p class="note">只計算 30 分鐘以上沒有動靜的紀錄；之後回來接續作答的不算跳出。</p>
+      <div class="tw"><table><thead><tr><th>位置</th><th class="n">看到</th><th class="n">停在這裡離開</th><th class="n">跳出率</th><th class="n">中位秒數</th></tr></thead><tbody>
+        <tr><td>開頭頁（沒按開始）</td><td class="n">${f.opened}</td><td class="n">${S.drops.intro}</td><td class="n">${pct(S.drops.intro, f.opened)}</td><td class="n">—</td></tr>
+        ${S.questions.map(x => `<tr class="${worst && worst.q === x.q && x.droppedHere ? 'hot' : ''}"><td>Q${x.q} ${Q_NAME[x.q - 1]}</td><td class="n">${x.reached}</td><td class="n">${x.droppedHere}</td><td class="n">${pct(x.droppedHere, x.reached)}</td><td class="n">${x.medianSec ?? '—'}</td></tr>`).join('')}
+        <tr><td>留資料頁（沒選任何一條路）</td><td class="n">${f.gateViewed}</td><td class="n">${S.drops.gate}</td><td class="n">${pct(S.drops.gate, f.gateViewed)}</td><td class="n">—</td></tr>
+      </tbody></table></div>
+      <p class="note">留資料頁的選擇：送出 ${f.lead}・略過 ${f.skipped}・改按 LINE ${f.line}</p>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="card"><h2>每日打開數</h2>
+      <div class="days">${S.daily.map(d => `<div style="height:${d.opened / dmax * 100}%" title="${d.day}｜打開 ${d.opened}・完成 ${d.completed}・留資料 ${d.lead}"></div>`).join('')}</div>
+      <div class="daysx"><span>${S.daily[0]?.day.slice(5) || ''}</span><span>${S.daily.at(-1)?.day.slice(5) || ''}</span></div>
+      <p class="note">把滑鼠移到長條上可以看當天的完成與留資料數。</p>
+    </section>
+    <section class="card"><h2>推薦課程分布</h2>${groupTable(S.byCourse, '課程')}
+      ${S.feedback?.length ? `<p class="note" style="margin-top:10px">教練回饋：準確 ${fb['準確'] || 0}・部分準確 ${fb['部分準確'] || 0}・不準確 ${fb['不準確'] || 0}</p>` : ''}</section>
+  </div>
+
+  <div class="grid2">
+    <section class="card"><h2>來源</h2>${groupTable(S.bySource, '來源（utm_source／entry／推薦碼）')}</section>
+    <section class="card"><h2>開啟環境</h2>${groupTable(S.byContext, '環境')}</section>
+  </div>
+
+  <section class="card"><h2>作答名單</h2>
+    <div class="tabs">${[['all', '全部'], ['dropped', '中途離開'], ['nolead', '完成但沒留資料'], ['lead', '已留資料']].map(([v, t]) => `<button data-list="${v}" class="${F.list === v ? 'on' : ''}">${t}</button>`).join('')}</div>
+    <div class="tw"><table><thead><tr><th>LINE 身分</th><th>狀態</th><th>推薦結果</th><th>留資料</th><th>來源</th><th>最後動作</th></tr></thead><tbody>
+      ${sessions.length ? sessions.map(rowHtml).join('') : '<tr><td colspan="6" class="muted">這個範圍還沒有紀錄。</td></tr>'}
+    </tbody></table></div>
+    <p class="note">點一列可以看完整作答過程。最多顯示最近 300 筆，完整資料請用匯出 CSV。</p>
+  </section>`;
+
+  document.getElementById('fDays').onchange = e => { F.days = +e.target.value; load(); };
+  document.getElementById('fTrial').onchange = e => { F.trial = e.target.value; load(); };
+  document.getElementById('reload').onclick = load;
+  document.getElementById('csv').onclick = downloadCsv;
+  root.querySelectorAll('[data-list]').forEach(b => b.onclick = () => { F.list = b.dataset.list; load(); });
+  root.querySelectorAll('tr[data-id]').forEach(tr => tr.onclick = () => openSession(tr.dataset.id));
+}
+
+function kpi(label, v, sub) { return `<div class="kpi"><small>${label}</small><b>${v}</b>${sub ? `<span>${sub}</span>` : ''}</div>`; }
+
+function groupTable(rows, head) {
+  if (!rows?.length) return '<p class="muted">尚無資料</p>';
+  return `<div class="tw"><table><thead><tr><th>${esc(head)}</th><th class="n">打開</th><th class="n">完成</th><th class="n">留資料</th><th class="n">留資料率</th></tr></thead><tbody>
+    ${rows.map(g => `<tr><td>${esc(g.key)}</td><td class="n">${g.opened}</td><td class="n">${g.completed}</td><td class="n">${g.lead}</td><td class="n">${pct(g.lead, g.opened)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function rowHtml(s) {
+  const idle = Date.now() - Date.parse(s.last_seen_at) > 30 * 60e3;
+  const st = s.resumed_by ? `<span class="pill">已在下一次接續</span>`
+    : s.stage <= 1 && idle
+    ? `<span class="pill drop">停在 ${s.stage === 0 ? '開頭頁' : 'Q' + (s.last_q + 1)}</span>`
+    : s.stage === 4 ? '<span class="pill lead">已留資料</span>' : `<span class="pill">${STAGE[s.stage]}${s.stage === 1 ? '・Q' + (s.last_q + 1) : ''}</span>`;
+  const who = s.display_name
+    ? `<div class="who">${s.picture_url ? `<img src="${esc(s.picture_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<i></i>'}<span>${esc(s.display_name)}${s.visit_no > 1 ? `<br><small class="muted">第 ${s.visit_no} 次</small>` : ''}</span></div>`
+    : `<div class="who"><i></i><span class="muted">未登入 LINE${s.visit_no > 1 ? `<br><small>第 ${s.visit_no} 次</small>` : ''}</span></div>`;
+  return `<tr class="click" data-id="${esc(s.id)}"><td>${who}</td>
+    <td>${st}${s.is_trial ? ' <span class="pill">試填</span>' : ''}</td>
+    <td>${esc(s.course || '—')}${s.plan ? `<br><small class="muted">${esc(s.plan)}</small>` : ''}${s.high_intent ? ' <span class="pill hi">高意向</span>' : ''}</td>
+    <td>${s.lead_name ? `${esc(s.lead_name)}<br><small class="muted">${esc(s.lead_phone)}</small>` : `<span class="muted">${s.gate_action === 'skip' ? '略過' : s.gate_action === 'line' ? '按了 LINE' : '—'}</span>`}</td>
+    <td>${esc(s.utm_source || s.entry || (s.ref ? '推薦碼 ' + s.ref : '直接'))}<br><small class="muted">${s.is_in_client ? 'LINE 內' : '外部瀏覽器'}${s.os ? '・' + esc(s.os) : ''}</small></td>
+    <td>${tpe(s.last_seen_at)}</td></tr>`;
+}
+
+const EV_NAME = { open: '打開', start: '開始作答', answer: '作答', change: '改答案', back: '上一題', skip: '略過', resume: '接續作答', resume_decline: '選擇重新開始',
+  complete: '完成測驗', gate_view: '看到留資料頁', gate_skip: '略過留資料', lead_start: '開始填資料', lead_submit: '送出資料', lead_error: '送出失敗',
+  line_click: '按 LINE 按鈕', result_view: '看到結果頁', see: '看到段落', cta: '點卡位按鈕', leave: '離開／切到背景', restart: '重新測驗' };
+
+async function openSession(id) {
+  const d = await api('/api/admin/session/' + encodeURIComponent(id));
+  const s = d.session;
+  let answers = {}; try { answers = JSON.parse(s.answers_json || '{}'); } catch {}
+  const t0 = Date.parse(s.started_at);
+  const kv = [
+    ['LINE 名稱', s.display_name || '（未登入）'], ['LINE userId', s.login_uid || '—'], ['Email', s.email || '—'],
+    ['狀態', STAGE[s.stage] + (s.stage === 1 ? `（答到 Q${s.last_q}）` : '')], ['推薦', [s.course, s.plan].filter(Boolean).join('｜') || '—'],
+    ['留資料頁', s.gate_action || '—'], ['結果頁看到', s.result_depth || '—'], ['Q10 偏好', s.q10_pref || '—'],
+    ['來源', [s.utm_source, s.utm_medium, s.utm_campaign, s.entry, s.ref && '推薦碼 ' + s.ref].filter(Boolean).join('・') || '直接'],
+    ['開啟環境', `${s.is_in_client ? 'LINE 內' : '外部瀏覽器'}・${s.context_type || '—'}・${s.os || ''}・LINE ${s.line_version || '—'}`],
+    ['第幾次', s.visit_no], ['開始', tpe(s.started_at)], ['最後動作', tpe(s.last_seen_at)]
+  ];
+  document.getElementById('dlgBody').innerHTML = `
+    <div class="bar-top"><h2 style="margin:0">${esc(s.display_name || '未登入 LINE 的作答')}</h2><button id="dlgClose">關閉</button></div>
+    ${d.leads.length ? `<p><b>留資料：</b>${d.leads.map(l => `${esc(l.name)}・${esc(l.phone)}・${esc(l.email)}`).join('<br>')}</p>` : ''}
+    <dl class="kv">${kv.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+    <details><summary>作答內容</summary><pre class="note" style="white-space:pre-wrap">${esc(JSON.stringify(answers, null, 1))}</pre></details>
+    ${d.feedback.length ? `<p><b>試填回饋：</b>${d.feedback.map(x => `${esc(x.tester || '')}｜${esc(x.accuracy)}${x.expected ? '（預期 ' + esc(x.expected) + '）' : ''}｜${esc(x.comment || '')}`).join('<br>')}</p>` : ''}
+    ${d.otherVisits.length ? `<p class="note">同一個 LINE 帳號的其他紀錄：${d.otherVisits.map(o => `${tpe(o.started_at)} ${STAGE[o.stage]}`).join('、')}</p>` : ''}
+    <h2>作答過程</h2>
+    <div class="timeline">${d.events.map(e => {
+      let p = {}; try { p = JSON.parse(e.payload_json || '{}') || {}; } catch {}
+      const sec = Math.round((Date.parse(e.at) - t0) / 1000);
+      const extra = e.type === 'answer' ? `${e.q}：${typeof p.v === 'object' ? JSON.stringify(p.v) : p.v ?? ''}（${Math.round((p.ms || 0) / 1000)} 秒）`
+        : e.type === 'see' ? p.section : e.type === 'leave' ? (e.q || '') : e.q || '';
+      return `<div><span class="muted">+${sec}s</span><span>${esc(EV_NAME[e.type] || e.type)}</span><span class="muted">${esc(extra)}</span></div>`;
+    }).join('')}</div>`;
+  const dlg = document.getElementById('dlg');
+  document.getElementById('dlgClose').onclick = () => dlg.close();
+  dlg.showModal();
+}
+
+async function downloadCsv() {
+  const r = await fetch(`/api/admin/export.csv?days=${F.days}&trial=${F.trial}`, { headers: token ? { authorization: 'Bearer ' + token } : {} });
+  if (!r.ok) return;
+  const url = URL.createObjectURL(await r.blob());
+  const a = document.createElement('a'); a.href = url; a.download = `quiz-sessions-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+load();
+</script>
+</body>
+</html>
